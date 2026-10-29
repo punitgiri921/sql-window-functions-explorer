@@ -20,6 +20,8 @@ import {
   Brackets,
   Calculator,
   ChevronRight,
+  ChevronLeft,
+  ExternalLink,
   RotateCcw
 } from 'lucide-react';
 
@@ -55,29 +57,12 @@ const EMPLOYEE_DATA = [
 
 const VIDEO_PRESETS = [
   {
-    id: '3-preceding-1898',
-    title: '3 PRECEDING (Video @ 31:38)',
-    timestamp: '31:38',
-    badge: 'Video Link Match',
-    description:
-      'From your exact video timestamp (t=1898s): ROWS BETWEEN 3 PRECEDING AND CURRENT ROW. Watch the frame bracket slide across at most 4 rows (current row + up to 3 preceding rows), so COUNT grows 1, 2, 3, 4, 4, 4...',
-    config: {
-      dataset: 'series',
-      partitionBy: 'NONE',
-      orderBy: 'NONE',
-      frameMode: 'ROWS',
-      frameStart: 'N_PRECEDING',
-      startN: 3,
-      frameEnd: 'CURRENT_ROW',
-      endN: 1,
-      activeRowIdx: 4, // Row 5 (x=5) shows 2+3+4+5 = 14
-    },
-  },
-  {
+    step: 1,
     id: 'default-over-gotcha',
-    title: 'Default OVER () Gotcha',
+    title: '1. Default OVER () Gotcha',
     timestamp: '16:15',
-    badge: 'Meaning #3',
+    videoSeconds: 975,
+    badge: 'Meaning #3 (Partition)',
     description:
       'Why does SUM(x) OVER () return 55 for every single row? Because the invisible default frame is RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW, and without ORDER BY, all rows are peers—making CURRENT ROW mean the ENTIRE PARTITION!',
     config: {
@@ -93,10 +78,12 @@ const VIDEO_PRESETS = [
     },
   },
   {
+    step: 2,
     id: 'range-vs-rows-no-order',
-    title: 'RANGE vs ROWS (No ORDER BY)',
+    title: '2. RANGE vs ROWS (No ORDER BY)',
     timestamp: '23:50',
-    badge: 'Meaning #1',
+    videoSeconds: 1430,
+    badge: 'Meaning #1 (Physical Row)',
     description:
       'Even without ORDER BY, switching from RANGE to ROWS changes CURRENT ROW from "entire partition" to "literal current row", producing a true running sum (1, 3, 6, 10... 55).',
     config: {
@@ -112,28 +99,11 @@ const VIDEO_PRESETS = [
     },
   },
   {
-    id: 'sliding-1-prec-1-foll',
-    title: '1 PRECEDING & 1 FOLLOWING',
-    timestamp: '32:25',
-    badge: 'Centered Window',
-    description:
-      'A 3-row sliding window centered on the active row (1 row before, current row, 1 row after). Notice how the first and last rows only capture 2 rows in their frame!',
-    config: {
-      dataset: 'series',
-      partitionBy: 'NONE',
-      orderBy: 'NONE',
-      frameMode: 'ROWS',
-      frameStart: 'N_PRECEDING',
-      startN: 1,
-      frameEnd: 'N_FOLLOWING',
-      endN: 1,
-      activeRowIdx: 0,
-    },
-  },
-  {
+    step: 3,
     id: 'peers-in-range',
-    title: 'Duplicates in RANGE Mode',
+    title: '3. Duplicates in RANGE Mode',
     timestamp: '25:10',
+    videoSeconds: 1510,
     badge: 'Meaning #2 (Peers)',
     description:
       'With duplicate values (1,1,2,2...) and ORDER BY x, RANGE treats CURRENT ROW as "current row + all peers with the same x". Notice COUNT jumps 2, 2, 4, 4, 6, 6 and SUM jumps 2, 2, 6, 6!',
@@ -150,10 +120,12 @@ const VIDEO_PRESETS = [
     },
   },
   {
+    step: 4,
     id: 'peers-in-rows',
-    title: 'Duplicates in ROWS Mode',
+    title: '4. Duplicates in ROWS Mode',
     timestamp: '27:40',
-    badge: 'Row-by-Row',
+    videoSeconds: 1660,
+    badge: 'Row-by-Row Strict',
     description:
       'Same duplicate dataset and ORDER BY x, but using ROWS mode. Now Postgres ignores peers for the frame end and stops strictly at the physical current row: COUNT goes 1, 2, 3, 4, 5, 6!',
     config: {
@@ -169,9 +141,54 @@ const VIDEO_PRESETS = [
     },
   },
   {
+    step: 5,
+    id: '3-preceding-1898',
+    title: '5. 3 PRECEDING (Video @ 31:38)',
+    timestamp: '31:38',
+    videoSeconds: 1898,
+    badge: '⭐ Your Video Link Match',
+    isUserLink: true,
+    description:
+      'From your exact video timestamp (t=1898s): ROWS BETWEEN 3 PRECEDING AND CURRENT ROW. Watch the frame bracket slide across at most 4 rows (current row + up to 3 preceding rows), so COUNT grows 1, 2, 3, 4, 4, 4...',
+    config: {
+      dataset: 'series',
+      partitionBy: 'NONE',
+      orderBy: 'NONE',
+      frameMode: 'ROWS',
+      frameStart: 'N_PRECEDING',
+      startN: 3,
+      frameEnd: 'CURRENT_ROW',
+      endN: 1,
+      activeRowIdx: 4, // Row 5 (x=5) shows 2+3+4+5 = 14
+    },
+  },
+  {
+    step: 6,
+    id: 'sliding-1-prec-1-foll',
+    title: '6. 1 PRECEDING & 1 FOLLOWING',
+    timestamp: '32:25',
+    videoSeconds: 1945,
+    badge: 'Centered Sliding Window',
+    description:
+      'A 3-row sliding window centered on the active row (1 row before, current row, 1 row after). Notice how the first and last rows only capture 2 rows in their frame!',
+    config: {
+      dataset: 'series',
+      partitionBy: 'NONE',
+      orderBy: 'NONE',
+      frameMode: 'ROWS',
+      frameStart: 'N_PRECEDING',
+      startN: 1,
+      frameEnd: 'N_FOLLOWING',
+      endN: 1,
+      activeRowIdx: 0,
+    },
+  },
+  {
+    step: 7,
     id: 'red-blue-partitions',
-    title: 'Red vs Blue Partitions (x >= 3)',
+    title: '7. Red vs Blue Partitions (x >= 3)',
     timestamp: '35:10',
+    videoSeconds: 2110,
     badge: 'Partition Boundaries',
     description:
       'Demonstrates PARTITION BY x >= 3 on the duplicate table. The table splits into two independent worlds: the Red partition (x < 3, boolean false) and the Blue partition (x >= 3, boolean true). Window frames never cross partition walls!',
@@ -188,9 +205,11 @@ const VIDEO_PRESETS = [
     },
   },
   {
+    step: 8,
     id: 'employee-analytics',
-    title: 'Employee Dept Salaries',
+    title: '8. Employee Dept Salaries',
     timestamp: '41:00',
+    videoSeconds: 2460,
     badge: 'Real-World Table',
     description:
       'The 7-row employee table from the talk partitioned by department and ordered by salary DESC. Compare departmental running totals, averages, RANK(), and DENSE_RANK().',
@@ -244,6 +263,22 @@ export default function App() {
     setFrameEnd(preset.config.frameEnd);
     setEndN(preset.config.endN);
     setActiveRowIdx(preset.config.activeRowIdx ?? 0);
+  };
+
+  // Step navigation helper for video presets
+  const activePresetIndex = VIDEO_PRESETS.findIndex((p) => p.id === activePresetId);
+  const activePreset = activePresetIndex >= 0 ? VIDEO_PRESETS[activePresetIndex] : VIDEO_PRESETS[4];
+
+  const goToPrevPreset = () => {
+    if (activePresetIndex > 0) {
+      applyPreset(VIDEO_PRESETS[activePresetIndex - 1]);
+    }
+  };
+
+  const goToNextPreset = () => {
+    if (activePresetIndex < VIDEO_PRESETS.length - 1) {
+      applyPreset(VIDEO_PRESETS[activePresetIndex + 1]);
+    }
   };
 
   // Switch dataset safely and reset incompatible partition/order settings
@@ -756,19 +791,55 @@ export default function App() {
 
       <main className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-5 space-y-5">
         {/* ====================================================================
-            CURATED VIDEO PRESETS BAR
+            CURATED VIDEO PRESETS BAR (CHRONOLOGICAL TALK ORDER)
         ==================================================================== */}
         <section className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
-          <div className="flex items-center justify-between mb-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-400" />
               <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                Video Walkthrough Presets (Click to Load Exact Slide Scenarios)
+                Talk Presets (Chronological Presentation Flow: 16:15 ➔ 41:00)
               </h2>
             </div>
-            <span className="text-xs text-slate-400 hidden sm:inline">
-              Starts at your link timestamp <strong className="text-sky-400">@ 31:38 (3 PRECEDING)</strong>
-            </span>
+
+            {/* Stepper & YouTube Link Controls */}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Direct YouTube Video Link */}
+              <a
+                href={`https://www.youtube.com/watch?v=XO1WnmJs9RI&t=${activePreset?.videoSeconds ?? 1898}s`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-medium bg-red-600/20 text-red-300 border border-red-500/40 hover:bg-red-600/30 transition shadow-sm"
+                title="Watch Bruce Momjian's talk at this exact timestamp on YouTube"
+              >
+                <Video className="w-3.5 h-3.5 text-red-400" />
+                Watch @ {activePreset?.timestamp ?? '31:38'}
+                <ExternalLink className="w-3 h-3 text-red-300" />
+              </a>
+
+              {/* Prev / Next Step Buttons */}
+              <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                <button
+                  disabled={activePresetIndex <= 0}
+                  onClick={goToPrevPreset}
+                  className="px-2 py-1 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1 transition"
+                  title="Previous presentation step"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" /> Prev
+                </button>
+                <span className="px-2 text-xs font-mono text-sky-400 font-semibold">
+                  Step {activePresetIndex + 1} of {VIDEO_PRESETS.length}
+                </span>
+                <button
+                  disabled={activePresetIndex >= VIDEO_PRESETS.length - 1}
+                  onClick={goToNextPreset}
+                  className="px-2 py-1 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1 transition"
+                  title="Next presentation step"
+                >
+                  Next <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
@@ -778,31 +849,43 @@ export default function App() {
                 <button
                   key={preset.id}
                   onClick={() => applyPreset(preset)}
-                  className={`text-left p-3 rounded-xl border transition-all flex flex-col justify-between ${
+                  className={`text-left p-3 rounded-xl border transition-all flex flex-col justify-between relative ${
                     isSelected
-                      ? 'bg-sky-950/60 border-sky-500 ring-1 ring-sky-500/50 shadow-lg shadow-sky-950/50'
+                      ? 'bg-sky-950/70 border-sky-500 ring-2 ring-sky-500/40 shadow-lg shadow-sky-950/60'
+                      : preset.isUserLink
+                      ? 'bg-slate-950/80 border-sky-500/40 hover:border-sky-400 hover:bg-slate-900'
                       : 'bg-slate-950/60 border-slate-800/90 hover:border-slate-700 hover:bg-slate-900'
                   }`}
                 >
                   <div>
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                        {isSelected && <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />}
+                    <div className="flex items-center justify-between gap-1.5 mb-1">
+                      <span className="text-xs font-bold text-white flex items-center gap-1.5 truncate">
+                        {isSelected && <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse shrink-0" />}
                         {preset.title}
                       </span>
-                      <span className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+                      <a
+                        href={`https://www.youtube.com/watch?v=XO1WnmJs9RI&t=${preset.videoSeconds}s`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-slate-800/90 hover:bg-red-950 hover:text-red-300 hover:border-red-500/50 text-slate-300 border border-slate-700 shrink-0 flex items-center gap-1 transition"
+                        title="Watch this slide on YouTube"
+                      >
+                        <Video className="w-2.5 h-2.5 text-red-400" />
                         {preset.timestamp}
-                      </span>
+                      </a>
                     </div>
                     <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
                       {preset.description}
                     </p>
                   </div>
-                  <div className="mt-2 flex items-center justify-between">
+                  <div className="mt-2.5 flex items-center justify-between">
                     <span
                       className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
                         isSelected
                           ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
+                          : preset.isUserLink
+                          ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                           : 'bg-slate-800/80 text-slate-400'
                       }`}
                     >
@@ -831,12 +914,22 @@ export default function App() {
                   Interactive Window Specification Builder
                 </h2>
               </div>
-              <button
-                onClick={() => applyPreset(VIDEO_PRESETS[0])}
-                className="text-xs text-slate-400 hover:text-white flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/70 transition"
-              >
-                <RotateCcw className="w-3 h-3" /> Reset to 31:38 Slide
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => applyPreset(VIDEO_PRESETS[0])}
+                  className="text-xs text-slate-400 hover:text-white flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/70 transition"
+                  title="Reset to Step 1 (16:15 Default OVER Gotcha)"
+                >
+                  <RotateCcw className="w-3 h-3" /> Step 1 (16:15)
+                </button>
+                <button
+                  onClick={() => applyPreset(VIDEO_PRESETS[4])}
+                  className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-950/60 hover:bg-sky-900/60 border border-sky-600/40 transition"
+                  title="Jump to 31:38 slide (3 PRECEDING)"
+                >
+                  <Sparkles className="w-3 h-3" /> Jump to 31:38
+                </button>
+              </div>
             </div>
 
             {/* Row 1: PARTITION BY & ORDER BY */}
