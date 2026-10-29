@@ -65,15 +65,17 @@ git remote add origin https://github.com/<YOUR-USERNAME>/sql-window-functions-ex
 git push -u origin main
 ```
 
-### Step 4: Enable GitHub Pages in Repository Settings
-1. Go to your repository on GitHub.
-2. Click **Settings** (top tab) -> **Pages** (left sidebar).
-3. Under **Build and deployment** -> **Source**, select:
-   **GitHub Actions** (NOT "Deploy from a branch").
-4. The workflow in `.github/workflows/deploy.yml` will automatically trigger and build the site.
-5. In 1–2 minutes, your live interactive app will be available at:
+### Live Interactive App:
+👉 **[https://punitgiri921.github.io/sql-window-functions-explorer/](https://punitgiri921.github.io/sql-window-functions-explorer/)**
+
+### Enable GitHub Pages in Repository Settings (One-time setup)
+1. Go to your repository settings: [github.com/punitgiri921/sql-window-functions-explorer/settings/pages](https://github.com/punitgiri921/sql-window-functions-explorer/settings/pages)
+2. Under **Build and deployment** -> **Source**, select:
+   👉 **GitHub Actions** *(NOT "Deploy from a branch")*.
+3. The workflow in `.github/workflows/deploy.yml` will automatically build and publish the live site.
+4. Your interactive laboratory will be live at:
    ```
-   https://<YOUR-USERNAME>.github.io/sql-window-functions-explorer/
+   https://punitgiri921.github.io/sql-window-functions-explorer/
    ```
 
 ---
