@@ -15,6 +15,7 @@ Thumbs.db
 .DS_Store
 .idea/
 .vscode/
+*.code-workspace
 *.suo
 *.ntvs*
 *.njsproj
