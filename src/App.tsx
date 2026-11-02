@@ -44,10 +44,10 @@ function Learn() {
 function Interactive() {
   const [partition, setPartition] = useState(true); const [ordered, setOrdered] = useState(true); const [direction, setDirection] = useState<"DESC" | "ASC">("DESC");
   const rows = useMemo(() => {
-    const sorted = [...staff].sort((a, b) => { if (partition && a.department !== b.department) return a.department.localeCompare(b.department); return direction === "DESC" ? b.salary - a.salary : a.salary - b.salary; });
+    const sorted = [...staff].sort((a, b) => { if (partition && a.department !== b.department) return a.department.localeCompare(b.department); if (!ordered) return staff.indexOf(a) - staff.indexOf(b); return direction === "DESC" ? b.salary - a.salary : a.salary - b.salary; });
     const totals: Record<string, number> = {};
     return sorted.map(row => { const key = partition ? row.department : "All"; totals[key] = (totals[key] || 0) + row.salary; return { ...row, total: totals[key] }; });
-  }, [partition, direction]);
+  }, [partition, ordered, direction]);
   const sql = "SUM(salary) OVER (\n  " + (partition ? "PARTITION BY department\n  " : "") + (ordered ? "ORDER BY salary " + direction : "") + "\n) AS window_total";
   return <div className="space-y-6"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-cyan-400">Experiment with the clauses</p><h2 className="mt-2 text-2xl font-bold text-white md:text-3xl">Change the window. See the result.</h2><p className="mt-2 text-slate-400">Toggle clauses and see how they affect the calculation.</p></div>
     <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]"><div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-5"><h3 className="font-semibold text-white">Window configuration</h3>
